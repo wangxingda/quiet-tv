@@ -50,7 +50,8 @@ final class ChildRestView extends FrameLayout {
         parent.setNextFocusUpId(leave.getId());parent.setNextFocusDownId(leave.getId());parent.setNextFocusLeftId(leave.getId());parent.setNextFocusRightId(leave.getId());
         leave.requestFocus();load(ui);
     }
-    void daily(boolean daily){eyebrow.setText(daily?"今天的观看时间结束啦":"这一轮观看结束啦");}
+    void daily(boolean daily){daily(daily,null);}
+    void daily(boolean daily,String dayName){eyebrow.setText(daily?(dayName==null?"今天的观看时间结束啦":dayName+"的观看时间结束啦"):"这一轮观看结束啦");}
     private TextView text(String value,int color,boolean bold){
         TextView v=new TextView(getContext());v.setText(value);v.setTextColor(color);v.setIncludeFontPadding(false);v.setGravity(Gravity.CENTER_VERTICAL);v.setTypeface(Typeface.DEFAULT,bold?Typeface.BOLD:Typeface.NORMAL);content.addView(v);return v;
     }

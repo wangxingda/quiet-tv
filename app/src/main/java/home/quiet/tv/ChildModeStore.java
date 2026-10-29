@@ -29,12 +29,21 @@ final class ChildModeStore {
     ChildModePolicy.Rule rule(String pkg){synchronized(LOCK){return read(rules().optJSONObject(pkg));}}
     boolean hidden(String pkg){return rule(pkg).hidden;}
     private ChildModePolicy.Rule read(JSONObject data){
-        ChildModePolicy.Rule r=new ChildModePolicy.Rule();if(data!=null){r.hidden=data.optBoolean("hidden");r.locked=data.optBoolean("locked");r.mode=data.optInt("mode");r.limit=data.optLong("limit",r.limit);r.singleUsed=data.optLong("singleUsed");r.dailyUsed=data.optLong("dailyUsed");r.singleExtra=data.optLong("singleExtra");r.dailyExtra=data.optLong("dailyExtra");r.day=data.optString("day");}
+        ChildModePolicy.Rule r=new ChildModePolicy.Rule();if(data!=null){r.hidden=data.optBoolean("hidden");r.locked=data.optBoolean("locked");r.mode=data.optInt("mode");r.limit=data.optLong("limit",r.limit);r.singleUsed=data.optLong("singleUsed");r.dailyUsed=data.optLong("dailyUsed");r.singleExtra=data.optLong("singleExtra");r.dailyExtra=data.optLong("dailyExtra");r.day=data.optString("day");r.weekLimits=readWeekLimits(data.optJSONArray("weekLimits"));}
         r.validate();r.newDay(today());return r;
+    }
+    private long[] readWeekLimits(org.json.JSONArray array){
+        if(array==null || array.length()!=ChildModePolicy.WEEK_DAYS)return null;
+        long[] limits=new long[ChildModePolicy.WEEK_DAYS];
+        for(int i=0;i<limits.length;i++)limits[i]=array.optLong(i);
+        boolean any=limits.length>0;for(long value:limits)any=any && value>=0;
+        return any?limits:null;
     }
     boolean save(String pkg,ChildModePolicy.Rule rule){
         rule.validate();synchronized(LOCK){try{
-            JSONObject values=rules(),r=new JSONObject();r.put("hidden",rule.hidden).put("locked",rule.locked).put("mode",rule.mode).put("limit",rule.limit).put("singleUsed",rule.singleUsed).put("dailyUsed",rule.dailyUsed).put("singleExtra",rule.singleExtra).put("dailyExtra",rule.dailyExtra).put("day",rule.day);values.put(pkg,r);
+            JSONObject values=rules(),r=new JSONObject();r.put("hidden",rule.hidden).put("locked",rule.locked).put("mode",rule.mode).put("limit",rule.limit).put("singleUsed",rule.singleUsed).put("dailyUsed",rule.dailyUsed).put("singleExtra",rule.singleExtra).put("dailyExtra",rule.dailyExtra).put("day",rule.day);
+            if(rule.weekly()){org.json.JSONArray limits=new org.json.JSONArray();for(long value:rule.weekLimits)limits.put(value);r.put("weekLimits",limits);}
+            values.put(pkg,r);
             return commit(preferences.edit().putString("rules",values.toString()).putLong("revision",revision()+1));
         }catch(JSONException e){throw new IllegalStateException("无法保存儿童模式设置",e);}}
     }

@@ -12,6 +12,7 @@ import java.util.concurrent.*;
 
 final class ChildModePanel extends ManagementPanel {
     @Override boolean useSettingListStyle(){return false;}
+    static final String[] WEEK_NAMES={"周一","周二","周三","周四","周五","周六","周日"};
     private final ExecutorService worker=Executors.newSingleThreadExecutor();
     private final ArrayList<ResolveInfo> apps=new ArrayList<>(),visible=new ArrayList<>();
     private ChildModeStore store;
@@ -120,18 +121,56 @@ final class ChildModePanel extends ManagementPanel {
         ChildModeUi.Sheet sheet=visual.new Sheet("使用时长",current().loadLabel(getPackageManager()).toString(),R.drawable.ic_child_time,825.6f);LinearLayout modes=row(),durations=row();modes.setClipChildren(false);durations.setClipChildren(false);visual.gap(sheet.body,34.56f);sheet.body.addView(modes,new LinearLayout.LayoutParams(-1,visual.p(65.1f)));View durationGap=new View(this);sheet.body.addView(durationGap,new LinearLayout.LayoutParams(1,visual.p(21.12f)));sheet.body.addView(durations,new LinearLayout.LayoutParams(-1,visual.p(58)));
         LinearLayout inputRow=row();inputRow.setGravity(Gravity.CENTER);View inputGap=new View(this);sheet.body.addView(inputGap,new LinearLayout.LayoutParams(1,visual.p(24.96f)));sheet.body.addView(inputRow,new LinearLayout.LayoutParams(-1,visual.p(60)));EditText hours=visual.number(String.valueOf(edited.limit/ChildModePolicy.MINUTE/60),"小时",2),minutes=visual.number(String.valueOf(edited.limit/ChildModePolicy.MINUTE%60),"分钟",2);inputRow.addView(hours,new LinearLayout.LayoutParams(visual.p(112),visual.p(58)));TextView hourLabel=visual.text(" 小时",17.28f,32,0xff9ca5b1);inputRow.addView(hourLabel,new LinearLayout.LayoutParams(visual.p(65),-1));inputRow.addView(minutes,new LinearLayout.LayoutParams(visual.p(112),visual.p(58)));inputRow.addView(visual.text(" 分钟",17.28f,32,0xff9ca5b1),new LinearLayout.LayoutParams(visual.p(65),-1));
         View padGap=new View(this);sheet.body.addView(padGap,new LinearLayout.LayoutParams(1,visual.p(19.2f)));LinearLayout pad=visual.numberPad(sheet,hours,minutes);sheet.body.addView(pad);
+        View weekGap=new View(this);sheet.body.addView(weekGap,new LinearLayout.LayoutParams(1,visual.p(21.12f)));LinearLayout weekRow=row();weekRow.setClipChildren(false);weekRow.setGravity(Gravity.CENTER);sheet.body.addView(weekRow,new LinearLayout.LayoutParams(-1,visual.p(58)));
         View hintGap=new View(this);sheet.body.addView(hintGap,new LinearLayout.LayoutParams(1,visual.p(26.88f)));TextView hint=visual.text("",16.13f,28,0xff7c8a9b);hint.setGravity(Gravity.CENTER);sheet.body.addView(hint);ArrayList<Button> modeButtons=new ArrayList<>(),durationButtons=new ArrayList<>();
-        Runnable refresh=()->{for(int i=0;i<modeButtons.size();i++)modeButtons.get(i).setSelected(edited.mode==i);for(int i=0;i<durationButtons.size();i++)durationButtons.get(i).setSelected(i==3?custom[0]:!custom[0] && edited.limit/ChildModePolicy.MINUTE==new int[]{30,60,120}[i]);durations.setVisibility(edited.limited()?View.VISIBLE:View.GONE);durationGap.setVisibility(durations.getVisibility());inputRow.setVisibility(edited.limited() && custom[0]?View.VISIBLE:View.GONE);inputGap.setVisibility(inputRow.getVisibility());pad.setVisibility(inputRow.getVisibility());padGap.setVisibility(inputRow.getVisibility());hint.setVisibility(edited.limited()?View.VISIBLE:View.GONE);hintGap.setVisibility(hint.getVisibility());hint.setText(edited.mode==ChildModePolicy.DAILY?"当天多次使用累计，次日恢复额度":"退出后保留剩余时间，用完需家长授权");};
+        // 周额度：null=未启用按周设置；否则 7 项周一..周日，0=跟随每日默认额度。
+        final long[][] week={edited.weekly()?edited.weekLimits.clone():null};
+        final long[] shared={edited.limit};
+        Runnable refresh=()->{for(int i=0;i<modeButtons.size();i++)modeButtons.get(i).setSelected(edited.mode==i);for(int i=0;i<durationButtons.size();i++)durationButtons.get(i).setSelected(i==3?custom[0]:!custom[0] && edited.limit/ChildModePolicy.MINUTE==new int[]{30,60,120}[i]);durations.setVisibility(edited.limited()?View.VISIBLE:View.GONE);durationGap.setVisibility(durations.getVisibility());inputRow.setVisibility(edited.limited() && custom[0]?View.VISIBLE:View.GONE);inputGap.setVisibility(inputRow.getVisibility());pad.setVisibility(inputRow.getVisibility());padGap.setVisibility(inputRow.getVisibility());weekRow.setVisibility(edited.mode==ChildModePolicy.DAILY?View.VISIBLE:View.GONE);weekGap.setVisibility(weekRow.getVisibility());hint.setVisibility(edited.limited()?View.VISIBLE:View.GONE);hintGap.setVisibility(hint.getVisibility());hint.setText(edited.mode==ChildModePolicy.DAILY?"当天多次使用累计，次日恢复额度":"退出后保留剩余时间，用完需家长授权");};
         String[] labels={"不限制","单次限时","每日累计"};for(int i=0;i<3;i++){final int mode=i;Button b=visual.button(labels[i],()->{edited.mode=mode;refresh.run();},false);b.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,visual.font(20.16f));visual.choice(b,11.52f);modeButtons.add(b);LinearLayout.LayoutParams mp=new LinearLayout.LayoutParams(0,-1,1);if(i>0)mp.leftMargin=visual.p(13.44f);modes.addView(b,mp);}
         String[] choices={"30 分钟","1 小时","2 小时","自定义"};for(int i=0;i<4;i++){final int which=i;Button b=visual.button(choices[i],()->{custom[0]=which==3;if(which<3)edited.limit=new int[]{30,60,120}[which]*ChildModePolicy.MINUTE;else{hours.setText(String.valueOf(edited.limit/ChildModePolicy.MINUTE/60));minutes.setText(String.valueOf(edited.limit/ChildModePolicy.MINUTE%60));}refresh.run();if(which==3)hours.requestFocus();},false);b.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,visual.font(19.2f));b.setPadding(0,0,0,0);visual.choice(b,12.48f);durationButtons.add(b);LinearLayout.LayoutParams dp=new LinearLayout.LayoutParams(0,-1,1);if(i>0)dp.leftMargin=visual.p(12.48f);durations.addView(b,dp);}
+        // 每周逐日入口：打开二级弹窗按周一至周日分别设置，每天可"跟随每日"或独立时长。
+        Button weekEntry=visual.button(week[0]!=null?"按星期设置  已开启":"按星期设置",()->{
+            final long[][] draft={week[0]==null?null:week[0].clone()};
+            ChildModeUi.Sheet days=visual.new Sheet("按星期设置","周一至周日分别设置，留空跟随每日额度",R.drawable.ic_child_time,825.6f);
+            ArrayList<EditText> dayHours=new ArrayList<>(),dayMinutes=new ArrayList<>();
+            for(int i=0;i<ChildModePolicy.WEEK_DAYS;i++){
+                final int index=i;LinearLayout line=row();line.setGravity(Gravity.CENTER_VERTICAL);
+                long value=draft[0]==null?0:draft[0][i];
+                EditText h=visual.number(value==0?"":String.valueOf(value/ChildModePolicy.MINUTE/60),ChildModePanel.WEEK_NAMES[i],2),m=visual.number(value==0?"":String.valueOf(value/ChildModePolicy.MINUTE%60),"分钟",2);
+                dayHours.add(h);dayMinutes.add(m);
+                TextView name=visual.text(ChildModePanel.WEEK_NAMES[i],19.2f,32,0xffacb6c3);line.addView(name,new LinearLayout.LayoutParams(visual.p(72),-1));
+                line.addView(h,new LinearLayout.LayoutParams(visual.p(96),visual.p(52)));line.addView(visual.text("时",17.28f,32,0xff9ca5b1),new LinearLayout.LayoutParams(visual.p(40),-1));
+                line.addView(m,new LinearLayout.LayoutParams(visual.p(96),visual.p(52)));line.addView(visual.text("分",17.28f,32,0xff9ca5b1),new LinearLayout.LayoutParams(visual.p(40),-1));
+                line.addView(visual.text(value==0?"跟随每日":"独立设置",16.13f,32,0xff7c8a9b),new LinearLayout.LayoutParams(-2,-1));
+                visual.gap(days.body,9.6f);days.body.addView(line,new LinearLayout.LayoutParams(-1,visual.p(58)));
+            }
+            days.action("清除全部",()->{for(EditText h:dayHours)h.setText("");for(EditText m:dayMinutes)m.setText("");},false);
+            days.action("取消",days.dialog::dismiss,false);
+            days.action("确定",()->{
+                long[] limits=new long[ChildModePolicy.WEEK_DAYS];boolean any=false;
+                try{for(int i=0;i<ChildModePolicy.WEEK_DAYS;i++){
+                    String hv=dayHours.get(i).getText().toString(),mv=dayMinutes.get(i).getText().toString();
+                    if(hv.isEmpty() && mv.isEmpty()){limits[i]=0;continue;}
+                    int h=hv.isEmpty()?0:Integer.parseInt(hv),m=mv.isEmpty()?0:Integer.parseInt(mv);
+                    if(h<0 || h>24 || m<0 || m>59)throw new NumberFormatException();
+                    long total=(h*60L+m)*ChildModePolicy.MINUTE;if(total>0 && total<ChildModePolicy.MINUTE)total=ChildModePolicy.MINUTE;
+                    limits[i]=total;any=any || total>0;
+                }}catch(NumberFormatException e){return;}
+                draft[0]=any?limits:null;days.dialog.dismiss();
+            },true);
+            show(days,days.body.getChildCount()>0?days.body.getChildAt(0):null);
+        },false);weekEntry.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,visual.font(19.2f));visual.choice(weekEntry,12.48f);weekRow.addView(weekEntry,new LinearLayout.LayoutParams(visual.p(240),visual.p(58)));
         sheet.action("取消",sheet.dialog::dismiss,false);sheet.action("确定",()->{
             if(!authorized)return;
             if(edited.limited() && custom[0])try{int h=Integer.parseInt(hours.getText().toString()),m=Integer.parseInt(minutes.getText().toString());if(h<0 || h>24 || m<0 || m>59)throw new NumberFormatException();edited.limit=(h*60L+m)*ChildModePolicy.MINUTE;}catch(NumberFormatException e){hint.setText("请输入 1 分钟至 24 小时，分钟填写 0–59");return;}
+            edited.weekLimits=week[0]==null?null:week[0].clone();
             try{edited.validate();}catch(IllegalArgumentException e){hint.setText("时长需为 1 分钟至 24 小时");return;}
             if(edited.limited() && !ChildUsageService.ready(this)){sheet.dialog.dismiss();permission();return;}
             if(!store.save(selected,edited)){hint.setText("保存失败，请重试");return;}sheet.dialog.dismiss();refreshSelectedCard();render();details.getChildAt(7).requestFocus();
         },true);visual.numberActions(sheet,pad);refresh.run();editing=sheet.dialog;sheet.dialog.setOnDismissListener(d->{sheet.release();if(editing==sheet.dialog)editing=null;});sheet.show(modeButtons.get(edited.mode));
     }
+    private void show(ChildModeUi.Sheet sheet,View focus){editing=sheet.dialog;sheet.dialog.setOnDismissListener(d->{sheet.release();if(editing==sheet.dialog)editing=null;});sheet.show(focus);}
     private void show(Sheet sheet,View focus){editing=sheet.dialog;sheet.dialog.setOnDismissListener(d->{if(editing==sheet.dialog)editing=null;});sheet.show(focus);}
     private void permission(){Sheet sheet=new Sheet("开启计时服务");sheet.text(store.fault().isEmpty()?"需在无障碍设置开启“儿童模式计时”。到时限制的效果仍需在本机验证。":store.fault());sheet.action("取消",sheet.dialog::dismiss);Button open=sheet.action("去开启",()->{sheet.dialog.dismiss();try{startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));}catch(ActivityNotFoundException e){message("当前电视没有可用的无障碍设置入口");}});show(sheet,open);}
     private void search(){
@@ -150,7 +189,17 @@ final class ChildModePanel extends ManagementPanel {
         Window window=sheet.dialog.getWindow();window.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL);WindowManager.LayoutParams position=window.getAttributes();position.y=px(16);window.setAttributes(position);
         show(sheet,input);sheet.dialog.setOnDismissListener(d->{keyboard.hideSoftInputFromWindow(input.getWindowToken(),0);if(editing==sheet.dialog)editing=null;});
     }
-    static String describeTime(ChildModePolicy.Rule r){long minutes=r.limit/ChildModePolicy.MINUTE;return !r.limited()?"不限制":(r.mode==ChildModePolicy.DAILY?"每日 ":"单次 ")+(minutes>=60?minutes/60+" 小时"+(minutes%60==0?"":" "+minutes%60+" 分钟"):minutes+" 分钟");}
+    static String describeTime(ChildModePolicy.Rule r){
+        if(!r.limited())return "不限制";
+        if(r.mode==ChildModePolicy.DAILY && r.weekly() && !uniformWeek(r))return "按星期设置";
+        long minutes=r.limit/ChildModePolicy.MINUTE;
+        return (r.mode==ChildModePolicy.DAILY?"每日 ":"单次 ")+(minutes>=60?minutes/60+" 小时"+(minutes%60==0?"":" "+minutes%60+" 分钟"):minutes+" 分钟");
+    }
+    private static boolean uniformWeek(ChildModePolicy.Rule r){
+        long shared=r.dayLimit(java.util.Calendar.MONDAY);
+        for(int day=java.util.Calendar.MONDAY;day<=java.util.Calendar.SATURDAY;day++)if(r.dayLimit(day)!=shared)return false;
+        return r.dayLimit(java.util.Calendar.SUNDAY)==shared;
+    }
     static String summary(ChildModePolicy.Rule r){return (r.hidden?"已隐藏  ":"")+(r.locked?"已上锁":r.limited() && r.remaining()==0?"额度已用完":describeTime(r));}
     @android.annotation.SuppressLint("RestrictedApi")
     @Override public boolean dispatchKeyEvent(KeyEvent event){if(unlock!=null&&gate.hasFocus()&&unlock.dispatchKeyEvent(event))return true;int key=event.getKeyCode();if(event.getAction()==KeyEvent.ACTION_DOWN && list.hasFocus() && key==KeyEvent.KEYCODE_DPAD_RIGHT && first!=null){first.requestFocus();return true;}
