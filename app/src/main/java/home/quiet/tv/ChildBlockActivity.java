@@ -54,7 +54,7 @@ public final class ChildBlockActivity extends ManagementUi {
     }
     private static String todayName(){
         int day=java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK);
-        return ChildModePanel.WEEK_NAMES[(day+java.util.Calendar.SATURDAY-1)%7];
+        return ChildModePanel.WEEK_NAMES[ChildModePolicy.Rule.weekIndex(day)];
     }
     private void grant(){
         ChildModeUi visual=new ChildModeUi(this);ChildModeUi.Sheet sheet=visual.new Sheet("追加使用时间","",R.drawable.ic_child_time,633.6f);

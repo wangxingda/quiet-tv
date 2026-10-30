@@ -36,8 +36,7 @@ final class ChildModeStore {
         if(array==null || array.length()!=ChildModePolicy.WEEK_DAYS)return null;
         long[] limits=new long[ChildModePolicy.WEEK_DAYS];
         for(int i=0;i<limits.length;i++)limits[i]=array.optLong(i);
-        boolean any=limits.length>0;for(long value:limits)any=any && value>=0;
-        return any?limits:null;
+        return limits;
     }
     boolean save(String pkg,ChildModePolicy.Rule rule){
         rule.validate();synchronized(LOCK){try{

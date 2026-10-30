@@ -18,12 +18,12 @@ final class ChildModePolicy {
         boolean limited(){return mode==SINGLE || mode==DAILY;}
         boolean weekly(){return weekLimits!=null && weekLimits.length==WEEK_DAYS;}
         long dayLimit(int dayOfWeek){
-            // Calendar SUNDAY=1..SATURDAY=7; weekLimits is Monday-first.
             if(!weekly())return limit;
-            int index=(dayOfWeek+Calendar.SATURDAY-1)%WEEK_DAYS;
-            long perDay=weekLimits[index];
+            long perDay=weekLimits[weekIndex(dayOfWeek)];
             return perDay>0?perDay:limit;
         }
+        // Calendar SUNDAY=1..SATURDAY=7; weekLimits is Monday-first (0=周一..6=周日).
+        static int weekIndex(int dayOfWeek){return Math.floorMod(dayOfWeek-Calendar.MONDAY,WEEK_DAYS);}
         void validate(){
             if(mode<NONE || mode>DAILY || limit<MINUTE || limit>DAY || singleUsed<0 || dailyUsed<0 || singleExtra<0 || singleExtra>DAY || dailyExtra<0 || dailyExtra>DAY)throw new IllegalArgumentException("儿童模式规则无效");
             if(weekLimits!=null){
