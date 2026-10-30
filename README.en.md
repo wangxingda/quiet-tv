@@ -33,9 +33,9 @@ The [installation page (Chinese)](https://beatsad.github.io/quiet-tv/), [Agent g
 
 **Choose the latest build compatible with the TV's Android version, supported ABIs, package, signer and upgrade conditions.** Use the Android 4.0–4.4 compatibility test APK for API14–20 or an applicable standard APK for API21+. Inspect the actual APK metadata; a larger build number or a 64-bit processor alone does not establish compatibility.
 
-The cumulative 1.3.0 test release provides two APKs: a universal Android 5.0+ build (130, minimum API21) and an Android 4.0–4.4 compatibility build (131, minimum API14). Neither contains native libraries, so separate ARM32 and ARM64 downloads are unnecessary; choose by Android version. The compatibility build has no standard desktop guard, HOME proxy or standard TV Input list; use system settings or the physical remote for inputs.
+The 1.3.1 test release provides two APKs: a universal Android 5.0+ build (146, minimum API21) and an Android 4.0–4.4 compatibility build (147, minimum API14). Neither contains native libraries, so separate ARM32 and ARM64 downloads are unnecessary; choose by Android version. The compatibility build has no standard desktop guard, HOME proxy or standard TV Input list; use system settings or the physical remote for inputs.
 
-If you already have 1.3.0, manually download the matching new APK and install it over the existing app. A higher build of the same software version does not trigger an update prompt. Check the package, signer and increasing build number first; do not uninstall or clear data.
+Existing 1.3.0 standard and legacy14 installations can check for in-app updates. Older legacy19 clients need a manual download to move to legacy14. A higher build of the same software version does not trigger an update prompt. Check the package, signer and increasing build number first; do not uninstall or clear data.
 
 Use the index's actual download URL and SHA-256, or a matching checksum attachment for historical builds. Read the selected release's validation limits. [Historical releases](https://github.com/BeatsAD/quiet-tv/releases) remain unchanged.
 
@@ -76,33 +76,35 @@ Use the index's actual download URL and SHA-256, or a matching checksum attachme
 
 ## Features
 
-These core features describe the 1.3.0 test release. Use the live release index and choose a build compatible with the TV's system and installed package.
+These core features describe the 1.3.1 test release. Use the live release index and choose a build compatible with the TV's system and installed package.
 
 | Feature | What it does |
 | --- | --- |
-| Favorites and order | Up to five favorite apps, five-column All Apps and automatically saved ordering. |
+| Favorites and order | Up to five favorite apps; long-press to move, add, replace, hide or request uninstallation, with hidden-app restoration in App Management. |
 | Personalization | Classic or Art Gallery, custom greetings and avatars, independent information and shortcut visibility. |
 | Weather | Automatic location, manual city selection and phone-assisted city entry. |
-| Wallpapers | Color theme, Bing daily wallpaper, uploaded photos and videos, LAN uploads and long-OK deletion. |
+| Wallpapers | Color theme, Bing daily wallpaper, photos and videos; a capsule dropdown for rotation intervals, video sound and optional naming during phone uploads. |
+| Desktop screensaver | Shared wallpaper media with independent selection, idle delay, time and weather controls. |
+| File transfer | LAN uploads and downloads start on page entry; browse local or USB files, preview and import wallpapers, and switch sources with arrow keys. |
 | App management | Category filters, package details and custom artwork; local TCP ADB enables disable, re-enable, uninstall and restore-install actions allowed by device rules and firmware capabilities. |
 | Child mode | Hide or lock apps, set per-session or daily limits, and use parent verification and rest reminders. |
 | App autostart | Open a selected app after boot or standby wake enters Quiet TV, without repeating on ordinary HOME returns. |
 | Inputs and home setup | Open supported input/settings routes; computer AI configures HOME or compatibility paths and retains stock-home recovery. |
 | In-app updates | Check versions, download from multiple sources, verify integrity and signing, then confirm installation. |
-| Remote and local use | Arrows, OK and Back; no cloud account, with preferences stored on the TV. |
+| Remote and local use | Arrows, OK and Back, optional key sounds and computer-assisted key calibration where supported; no cloud account. |
 
-Open All Apps → 应用管理 for App list, Favorites, Order, Child mode, Version updates and Diagnostic logs. Everyday desktop, ordering, wallpaper, weather and artwork settings need no ADB. Computer AI tools handle initial connection setup, authorization, device adaptation and requested boot-ad maintenance. The TV retains daily management over a configured local TCP ADB connection, with no wireless-pairing interface; a computer connection does not authorize the app. See [app management](docs/APP_MANAGEMENT.md).
+Open All Apps → 桌面设置 for Desktop, Weather, App Management, Child mode, File transfer, Version updates and Diagnostic logs. Everyday desktop, ordering, wallpaper, weather and artwork settings need no ADB. Computer AI tools handle initial connection setup, authorization, device adaptation and requested boot-ad maintenance. The TV retains daily management over a configured local TCP ADB connection, with no wireless-pairing interface; a computer connection does not authorize the app. See [app management](docs/APP_MANAGEMENT.md).
 
-This cumulative 1.3.0 release fixes takeover recovery after in-place upgrades and some dynamic-wallpaper compatibility and switching issues. It adds a startup background cache, restores full-resolution static wallpaper loading, and improves card edges, home focus, settings spacing and management-button layout. See the full [1.3.0 release notes](https://github.com/BeatsAD/quiet-tv/releases/tag/v1.3.0).
+Version 1.3.1 adds file transfer, an independent screensaver, rotation intervals, phone upload naming and Home long-press management. It improves computer calibration and maintenance, wallpaper selection, parent verification, timer status, installation preflight and video handoff, including desktop-return black flashes. See the full [1.3.1 release notes](https://github.com/BeatsAD/quiet-tv/releases/tag/v1.3.1).
 
-The signed update feed is live. Automatic checks run every 24 hours while Home is in the foreground; 1.3.0 provides manual checks under App Management → Version updates → Check for updates (About in older APKs). Older versions without this feature need a manual installation first. A higher build of the same software version is not offered as an update. See [in-app updates](docs/UPDATES.md).
+The signed update feed is live. Automatic checks run every 24 hours while Home is in the foreground; manual checks are under Desktop Settings → Version updates → Check for updates (App Management in 1.3.0, About in older APKs). Older versions without this feature need a manual installation first. A higher build of the same software version is not offered as an update. See [in-app updates](docs/UPDATES.md).
 
 ## Install and try it
 
 1. Confirm Android support, choose the matching APK above, and [verify its checksum](docs/INSTALL.en.md#download-and-try).
 2. Follow [installation](docs/INSTALL.en.md), or use the [computer Agent instructions, Chinese](docs/AGENT.md).
-3. Version 1.3.0 opens Home without an automatic setup wizard. Check navigation, apps and system entries; keep any desktop configuration already completed by the AI tool.
-4. Use the computer AI workflow to configure HOME when ready. Read back the component, then separately verify the physical Home button, reboot and standby wake. Recovery in 1.3.0 is under 应用管理 → 更多 → 帮助与恢复 (Help and recovery); see [setup](docs/SETUP.md).
+3. Version 1.3.1 opens Home without an automatic setup wizard. Check navigation, apps and system entries; keep any desktop configuration already completed by the AI tool.
+4. Use the computer AI workflow to configure HOME when ready. Read back the component, then separately verify the physical Home button, reboot and standby wake. Recovery is under 桌面设置 → 更多 → 帮助与恢复 (Help and recovery); see [setup](docs/SETUP.md).
 
 Updates need matching package/signature and an increasing build number. Do not uninstall to resolve signing mismatches. Keep backups and recovery records locally, and never reuse another TV's debloating list.
 
@@ -110,36 +112,36 @@ Updates need matching package/signature and an increasing build number. Do not u
 
 | System or device | Scope |
 | --- | --- |
-| Android 5.0+ TVs | 1.3.0 universal standard test APK (130), minimum API21. |
-| Android 4.0–4.4 | 1.3.0 compatibility test APK (131), minimum API14. Physical Android 4.x runtime and upgrade acceptance remain pending. |
+| Android 5.0+ TVs | 1.3.1 universal standard test APK (146), minimum API21. |
+| Android 4.0–4.4 | 1.3.1 compatibility test APK (147), minimum API14. Physical Android 4.x runtime and upgrade acceptance remain pending. |
 | Tizen, webOS and other non-Android systems | Unsupported. |
 
-The two 1.3.0 APKs share one source baseline, software version and test signer. Builds, signing and checksum checks passed, as did 12 targeted tests per profile; Lint reported zero errors with warnings remaining. Each APK passed in-place installation, HOME and management-tab checks, and retention checks for selected settings and the wallpaper index on an API26 emulator. Actual API14–19 runtime and in-place upgrades, vendor TVs and long-running playback remain unverified; running the compatibility APK on a newer emulator does not validate Android 4.x. Physical HOME, cold boot, reboot, standby, playback and input switching need separate target-TV checks.
+The two 1.3.1 APKs share one source baseline, software version and test signer. Build, Lint, metadata and checksum checks passed, as did 31 rotation and file-transfer unit tests and the public Validate check. Final builds 146/147 have not been installed on a device. Final-package feature checks, in-place upgrade retention, Android 4.x runtime and vendor-TV acceptance are explicitly deferred; earlier emulator results do not validate these final APKs.
 
 See [compatibility and historical evidence](docs/COMPATIBILITY.md). Third-party media apps update through their own channels; Quiet TV does not automatically update them.
 
 ## Known issues and hardware validation
 
-As of 2026-10-29, some devices have reported results; more models and firmware versions still need testing. **Each result applies only to its stated device, firmware, APK and scenario.** Installation, manual launch and HOME resolution do not establish physical Home-button, reboot, cold-boot or standby-wake behavior.
+Updated 2026-10-29. Results apply to the recorded model, firmware and software version.
 
-| Issue | Progress and remaining checks |
-| --- | --- |
-| Vendor home takeover | A Coocaa 55G20 user confirms physical Home and reboot success on 1.2.9; cold boot, standby and other firmware remain unconfirmed. A Skyworth E6100 / Android 4.4.2 trial report still returns to stock Home, and API19 has no standard guard fallback. |
-| Inputs and remote keys | Skyworth 55H6 / 1.3.0 (130) reports an input screen at boot, input-switching problems and an unresponsive Menu key; fixes and physical retesting remain pending. Opening an input route does not validate picture, audio or remote keys. |
-| Legacy weather and daily wallpaper | Hisense VIDAA_TV / Android 4.4.2 reported HTTPS handshake failures on 1.2.1 (54). Later fixes have shipped; this device still needs an upgrade retest. See [#68](https://github.com/BeatsAD/quiet-tv/issues/68#issuecomment-6430967402). |
-| Restricted ADB access or authorization | Greyed-out USB debugging, missing wireless debugging or no pairing entry can prevent some maintenance and adaptation. There is no universal unlock method. A current connection does not prove access after reboot or standby. |
+**Known issues**
 
-| Device report | Available evidence | Still needed |
+| Issue | Current status | Pending validation |
 | --- | --- | --- |
-| Coocaa / Skyworth 55G20, Android 8, 1.2.9 | User confirms physical Home and reboot into Quiet TV in the [latest #35 comment](https://github.com/BeatsAD/quiet-tv/issues/35#issuecomment-6440081087) | Build/configuration details, cold boot, standby, inputs and stock-home recovery |
-| Xiaomi Box 2 Enhanced, Android 4.4.2, 1.2.4 | User reports installation and normal use in [#81](https://github.com/BeatsAD/quiet-tv/issues/81) | Scenario-specific acceptance, later upgrades and Dock-toggle retesting |
-| Sony BRAVIA VH1, Android 12, historical 1.2.4 (64) | In-place installation, installed APK verification and page captures | Full features and data retention, physical Home, reboot and standby |
+| Home takeover | Skyworth E6100 (Android 4.4.2) returns to stock Home when the Home key is pressed in trial mode | Takeover options, reboot, cold boot and standby wake |
+| Inputs and Menu key | Skyworth 55H6 / 1.3.0 reports an input screen at boot, input-switching problems and an unresponsive Menu key | Physical-TV retesting after fixes |
+| Weather and daily wallpaper | Hisense VIDAA_TV (Android 4.4.2) had connection failures on an older version; compatibility fixes have since shipped. See [#68](https://github.com/BeatsAD/quiet-tv/issues/68#issuecomment-6430967402) | Retest weather and daily wallpaper separately after upgrading |
+| ADB connection | Some firmware restricts debugging access or authorization | Available connection methods and connectivity after reboot or standby |
 
-See the [device records](docs/COMPATIBILITY.md#样机验证记录) for firmware, versions, failures and sources. Community reports and maintainer acceptance are identified separately; an older result does not validate 1.3.0 or an entire brand.
+**Hardware validation results**
 
-Version 1.3.0 uses computer AI for takeover setup; 应用管理 → 更多 → 帮助与恢复 (Help and recovery) pauses takeover or restores stock Home. The guard, HOME proxy, [Xiaomi helper](xiaomi-home-helper/README.md) and [Coocaa shim](coocaa-home-shim/README.md) depend on system capabilities and authorization. Avoid running standalone helpers alongside the built-in guard; the Coocaa port has no Quiet TV physical acceptance yet. Android 4.0–4.4 has no standard guard or HOME proxy. See [setup and recovery](docs/SETUP.md) and [computer adaptation](docs/AGENT_ADAPT.zh-CN.md).
+| Device and version | Available results | Pending validation |
+| --- | --- | --- |
+| Coocaa / Skyworth 55G20, Android 8, 1.2.9 | User confirms physical Home and reboot into Quiet TV. See [#35](https://github.com/BeatsAD/quiet-tv/issues/35#issuecomment-6440081087) | Cold boot, standby, inputs and stock-home recovery |
+| Xiaomi Box 2 Enhanced, Android 4.4.2, 1.2.4 | User reports successful installation and normal use. See [#81](https://github.com/BeatsAD/quiet-tv/issues/81) | Individual feature acceptance, later upgrades and Dock-toggle retesting |
+| Sony BRAVIA VH1, Android 12, historical 1.2.4 (64) | In-place installation and page checks completed | Full features, retention of all data, physical Home, cold boot, reboot and standby |
 
-Use a [device adaptation report](https://github.com/BeatsAD/quiet-tv/issues/new?template=device_adaptation.yml) or the relevant issue. Include model, Android/firmware, Quiet TV version/build and APK source; report manual launch, physical Home, reboot, cold boot, standby, input/Menu keys and stock-home recovery separately. Mark untested items as unverified. Share relevant redacted excerpts only, omitting IP addresses, serial numbers, keys and full device dumps.
+See the [device records](docs/COMPATIBILITY.md#样机验证记录) for models, firmware and evidence. Share redacted test results through the [device adaptation form](https://github.com/BeatsAD/quiet-tv/issues/new?template=device_adaptation.yml).
 
 ## Technical approach
 
@@ -185,7 +187,7 @@ Native source is in `app/`, build and device tools in `scripts/`, and `prototype
 
 Quiet TV is based on [Gathin23/cleanyourtv](https://github.com/Gathin23/cleanyourtv). Thank you to **Gathin** for the original work. This project is independently maintained and is not officially affiliated with the upstream project or TV and application brands.
 
-Project code uses [MIT](LICENSE), preserving the copyrights of Gathin and Quiet TV contributor BeatsAD, the permission notice and disclaimer. Third-party code, fonts, icons, weather data, images and videos retain their respective licenses or service terms; see [third-party notices](THIRD_PARTY_NOTICES.md).
+Project code uses [MIT](LICENSE), preserving the copyrights of Gathin and Quiet TV contributor BeatsAD, the permission notice and disclaimer. Third-party code, fonts, icons, weather data, images and videos retain their respective licenses or service terms; see [third-party notices](THIRD_PARTY_NOTICES.en.md).
 
 ## Let's connect
 

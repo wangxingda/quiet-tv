@@ -117,7 +117,7 @@ Source includes legacy networking/font fallbacks, detected HOME settings, Back h
 
 ### 旧系统天气证书兼容（开发源码） / Legacy weather certificates
 
-针对 Android 5.1 小米盒子天气刷新时的 `SSLHandshakeException`／`CertificateException`，天气客户端在 API19–25 上将随包的 ISRG Root X1 根证书加入当前连接的信任集合。和风及 UAPI 共用该处理，保留原有系统根证书、证书链、有效期及域名校验，不写入系统 CA 库，也不改变其他网络功能的 TLS 设置。证书来源与指纹见[第三方说明](../THIRD_PARTY_NOTICES.md#旧版-android-天气-https-兼容)。
+针对 Android 5.1 小米盒子天气刷新时的 `SSLHandshakeException`／`CertificateException`，天气客户端在 API19–25 上将随包的 ISRG Root X1 根证书加入当前连接的信任集合。和风及 UAPI 共用该处理，保留原有系统根证书、证书链、有效期及域名校验，不写入系统 CA 库，也不改变其他网络功能的 TLS 设置。根证书来源为 [ISRG Root X1](https://letsencrypt.org/certificates/)，随包文件见[公开证书](../app/src/main/assets/certificates/isrg-root-x1.pem)。
 
 | 档位 / Profile | 共同功能及差异 / Behavior | 本轮验证 / Validation |
 | --- | --- | --- |
@@ -298,6 +298,7 @@ TCL／雷鸟的安装受限方案于 2026-10-26 补充：先以品牌发现候�
 | Quiet TV 应用图标 | 两档均增加普通 LAUNCHER 入口，同时保留 HOME 和电视入口 | 原厂应用中心是否展示及遥控启动待目标固件验收 |
 | 卡片图片 | 优先加载 APK 中的高密度资源，复用现有卡片样式与缓存；4K 渲染且内存预算足够时提高生成尺寸，低内存设备保留原尺寸 | 不重绘第三方品牌图案；不能提高 APK 本身缺失的源图细节 |
 | 新上传壁纸 | 按应用实际显示长边处理，普通设备最大 3840；低内存或内存档位低于 256 MB 时最大 1920。保留 EXIF 方向、格式与像素上限 | 只影响新上传；不重写已有文件，原图仍在上传端。应用渲染 1080p 的 4K 面板不强行生成 4K 图 |
+| 壁纸轮播频率 | 标准档与 legacy14／legacy19 共用顶部下拉框、1／5／15／30／60分钟、按分类轮播与旧设置迁移；视频仍分别使用 Media3 和系统 MediaPlayer，不改变各档素材限制 | 配置与顺序策略由本地单元测试覆盖；实际播放、焦点、系统暂停恢复及厂商黑闪需分别验证 |
 | TCL 快捷信号源 | 只有本机声明 com.tcl.software.systemui_custom_tv_source 时，在 SystemUI 包内解析 SHOW_WINDOW 服务并传递 Source/input 参数；再次核对实际系统组件、权限和状态 | 继续保留 TCL 设置面板及其他已有面板；只确认调用，不视为切源成功 |
 | 小米 MiTV-ANTL0 | 仅已注册的系统 com.droidlogic.tvinput HDMI / HW6，显示 HDMI 1 并尝试源编号 23 | 不补造第二个端口；其他型号、服务或类型不继承编号 |
 | 红米 MiTV-MFFU1 | 仅系统 com.mediatek.tvinput DisplayPort / HW9、HW10 分别对应 DP/29、USB-C/30 | 不把框架报告的连接状态当可靠接线证据，不显示未经验证的“已连接” |
