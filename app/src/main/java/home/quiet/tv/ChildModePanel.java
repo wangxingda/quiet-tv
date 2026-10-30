@@ -126,7 +126,14 @@ final class ChildModePanel extends ManagementPanel {
         // 周额度：null=未启用按周设置；否则 7 项周一..周日，0=跟随每日默认额度。
         final long[][] week={edited.weekly()?edited.weekLimits.clone():null};
         final long[] shared={edited.limit};
-        Runnable refresh=()->{for(int i=0;i<modeButtons.size();i++)modeButtons.get(i).setSelected(edited.mode==i);for(int i=0;i<durationButtons.size();i++)durationButtons.get(i).setSelected(i==3?custom[0]:!custom[0] && edited.limit/ChildModePolicy.MINUTE==new int[]{30,60,120}[i]);durations.setVisibility(edited.limited()?View.VISIBLE:View.GONE);durationGap.setVisibility(durations.getVisibility());inputRow.setVisibility(edited.limited() && custom[0]?View.VISIBLE:View.GONE);inputGap.setVisibility(inputRow.getVisibility());pad.setVisibility(inputRow.getVisibility());padGap.setVisibility(inputRow.getVisibility());weekRow.setVisibility(edited.mode==ChildModePolicy.DAILY?View.VISIBLE:View.GONE);weekGap.setVisibility(weekRow.getVisibility());hint.setVisibility(edited.limited()?View.VISIBLE:View.GONE);hintGap.setVisibility(hint.getVisibility());hint.setText(edited.mode==ChildModePolicy.DAILY?"当天多次使用累计，次日恢复额度":"退出后保留剩余时间，用完需家长授权");};
+        final Button[] weekEntryHolder=new Button[1];
+        Runnable refresh=()->{for(int i=0;i<modeButtons.size();i++)modeButtons.get(i).setSelected(edited.mode==i);
+            // 按星期设置生效时，逐日额度优先于统一预设，预设按钮不作选中展示。
+            boolean presets=edited.mode!=ChildModePolicy.DAILY || week[0]==null;
+            for(int i=0;i<durationButtons.size();i++)durationButtons.get(i).setSelected(i==3?custom[0] && presets:!custom[0] && presets && edited.limit/ChildModePolicy.MINUTE==new int[]{30,60,120}[i]);
+            durations.setVisibility(edited.limited()?View.VISIBLE:View.GONE);durationGap.setVisibility(durations.getVisibility());inputRow.setVisibility(edited.limited() && custom[0]?View.VISIBLE:View.GONE);inputGap.setVisibility(inputRow.getVisibility());pad.setVisibility(inputRow.getVisibility());padGap.setVisibility(inputRow.getVisibility());weekRow.setVisibility(edited.mode==ChildModePolicy.DAILY?View.VISIBLE:View.GONE);weekGap.setVisibility(weekRow.getVisibility());hint.setVisibility(edited.limited()?View.VISIBLE:View.GONE);hintGap.setVisibility(hint.getVisibility());
+            if(weekEntryHolder[0]!=null)weekEntryHolder[0].setText(edited.mode==ChildModePolicy.DAILY && week[0]!=null?"按星期设置  已开启":"按星期设置");
+            hint.setText(edited.mode==ChildModePolicy.DAILY?week[0]!=null?"按星期设置生效，未单独设置的日子跟随每日额度":"当天多次使用累计，次日恢复额度":"退出后保留剩余时间，用完需家长授权");};
         String[] labels={"不限制","单次限时","每日累计"};for(int i=0;i<3;i++){final int mode=i;Button b=visual.button(labels[i],()->{edited.mode=mode;refresh.run();},false);b.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,visual.font(20.16f));visual.choice(b,11.52f);modeButtons.add(b);LinearLayout.LayoutParams mp=new LinearLayout.LayoutParams(0,-1,1);if(i>0)mp.leftMargin=visual.p(13.44f);modes.addView(b,mp);}
         String[] choices={"30 分钟","1 小时","2 小时","自定义"};for(int i=0;i<4;i++){final int which=i;Button b=visual.button(choices[i],()->{custom[0]=which==3;if(which<3)edited.limit=new int[]{30,60,120}[which]*ChildModePolicy.MINUTE;else{hours.setText(String.valueOf(edited.limit/ChildModePolicy.MINUTE/60));minutes.setText(String.valueOf(edited.limit/ChildModePolicy.MINUTE%60));}refresh.run();if(which==3)hours.requestFocus();},false);b.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,visual.font(19.2f));b.setPadding(0,0,0,0);visual.choice(b,12.48f);durationButtons.add(b);LinearLayout.LayoutParams dp=new LinearLayout.LayoutParams(0,-1,1);if(i>0)dp.leftMargin=visual.p(12.48f);durations.addView(b,dp);}
         // 每周逐日入口：打开二级弹窗按周一至周日分别设置，每天可"跟随每日"或独立时长。
@@ -157,10 +164,10 @@ final class ChildModePanel extends ManagementPanel {
                     long total=(h*60L+m)*ChildModePolicy.MINUTE;if(total>0 && total<ChildModePolicy.MINUTE)total=ChildModePolicy.MINUTE;
                     limits[i]=total;any=any || total>0;
                 }}catch(NumberFormatException e){return;}
-                draft[0]=any?limits:null;days.dialog.dismiss();
+                draft[0]=any?limits:null;days.dialog.dismiss();week[0]=draft[0]==null?null:draft[0].clone();refresh.run();
             },true);
             show(days,days.body.getChildCount()>0?days.body.getChildAt(0):null);
-        },false);weekEntry.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,visual.font(19.2f));visual.choice(weekEntry,12.48f);weekRow.addView(weekEntry,new LinearLayout.LayoutParams(visual.p(240),visual.p(58)));
+        },false);weekEntry.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,visual.font(19.2f));visual.choice(weekEntry,12.48f);weekRow.addView(weekEntry,new LinearLayout.LayoutParams(visual.p(240),visual.p(58)));weekEntryHolder[0]=weekEntry;
         sheet.action("取消",sheet.dialog::dismiss,false);sheet.action("确定",()->{
             if(!authorized)return;
             if(edited.limited() && custom[0])try{int h=Integer.parseInt(hours.getText().toString()),m=Integer.parseInt(minutes.getText().toString());if(h<0 || h>24 || m<0 || m>59)throw new NumberFormatException();edited.limit=(h*60L+m)*ChildModePolicy.MINUTE;}catch(NumberFormatException e){hint.setText("请输入 1 分钟至 24 小时，分钟填写 0–59");return;}
@@ -191,16 +198,34 @@ final class ChildModePanel extends ManagementPanel {
     }
     static String describeTime(ChildModePolicy.Rule r){
         if(!r.limited())return "不限制";
-        if(r.mode==ChildModePolicy.DAILY && r.weekly() && !uniformWeek(r))return "按星期设置";
+        if(r.mode==ChildModePolicy.DAILY && r.weekly())return describeWeek(r);
         long minutes=r.limit/ChildModePolicy.MINUTE;
         return (r.mode==ChildModePolicy.DAILY?"每日 ":"单次 ")+(minutes>=60?minutes/60+" 小时"+(minutes%60==0?"":" "+minutes%60+" 分钟"):minutes+" 分钟");
+    }
+    // 按星期设置时列出各天实际额度，留空的天跟随每日默认；相邻同额度的天合并为区间。
+    private static String describeWeek(ChildModePolicy.Rule r){
+        if(!r.weekly() || uniformWeek(r)){long minutes=r.limit/ChildModePolicy.MINUTE;return "每日 "+(minutes>=60?minutes/60+" 小时"+(minutes%60==0?"":" "+minutes%60+" 分钟"):minutes+" 分钟");}
+        StringBuilder text=new StringBuilder();
+        int start=0;
+        while(start<ChildModePolicy.WEEK_DAYS){
+            long value=r.weekLimits[start];
+            int end=start;
+            while(end+1<ChildModePolicy.WEEK_DAYS && r.weekLimits[end+1]==value)end++;
+            if(text.length()>0)text.append("  ");
+            if(start==end)text.append(WEEK_NAMES[start]);
+            else text.append(WEEK_NAMES[start]).append("至").append(WEEK_NAMES[end]);
+            if(value==0){long minutes=r.limit/ChildModePolicy.MINUTE;text.append(" 跟随每日 ").append(minutes>=60?minutes/60+" 小时"+(minutes%60==0?"":" "+minutes%60+" 分钟"):minutes+" 分钟");}
+            else{long minutes=value/ChildModePolicy.MINUTE;text.append(" ").append(minutes>=60?minutes/60+" 小时"+(minutes%60==0?"":" "+minutes%60+" 分钟"):minutes+" 分钟");}
+            start=end+1;
+        }
+        return text.toString();
     }
     private static boolean uniformWeek(ChildModePolicy.Rule r){
         long shared=r.dayLimit(java.util.Calendar.MONDAY);
         for(int day=java.util.Calendar.MONDAY;day<=java.util.Calendar.SATURDAY;day++)if(r.dayLimit(day)!=shared)return false;
         return r.dayLimit(java.util.Calendar.SUNDAY)==shared;
     }
-    static String summary(ChildModePolicy.Rule r){return (r.hidden?"已隐藏  ":"")+(r.locked?"已上锁":r.limited() && r.remaining()==0?"额度已用完":describeTime(r));}
+    static String summary(ChildModePolicy.Rule r){return (r.hidden?"已隐藏  ":"")+(r.locked?"已上锁":r.limited() && r.remaining()==0?"额度已用完":r.mode==ChildModePolicy.DAILY && r.weekly() && !uniformWeek(r)?"按星期设置":describeTime(r));}
     @android.annotation.SuppressLint("RestrictedApi")
     @Override public boolean dispatchKeyEvent(KeyEvent event){if(unlock!=null&&gate.hasFocus()&&unlock.dispatchKeyEvent(event))return true;int key=event.getKeyCode();if(event.getAction()==KeyEvent.ACTION_DOWN && list.hasFocus() && key==KeyEvent.KEYCODE_DPAD_RIGHT && first!=null){first.requestFocus();return true;}
         if(event.getAction()==KeyEvent.ACTION_DOWN && list.hasFocus() && key==KeyEvent.KEYCODE_DPAD_UP){RecyclerView.ViewHolder holder=list.findContainingViewHolder(getCurrentFocus());if(holder==null || holder.getBindingAdapterPosition()==0){managementAction.requestFocus();return true;}}
